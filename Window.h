@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-¶¨ÒåWindowÀàÖ÷Òª¸ºÔğ´°¿ÚµÄ´´½¨¡¢ÏÔÊ¾Óë¸üĞÂ£¬¼ÓÔØ×ÊÔ´
+å®šä¹‰Windowç±»ä¸»è¦è´Ÿè´£çª—å£çš„åˆ›å»ºã€æ˜¾ç¤ºä¸æ›´æ–°ï¼ŒåŠ è½½èµ„æº
 */
 
 #include <SDL_image.h>
@@ -17,24 +17,23 @@ public:
 	~Window(void);
 
 public:
-	void Start();				// ½øÈëÏûÏ¢Ñ­»·
-	void Refresh();				// refreshµ½ÆÁÄ»ÉÏ
-	void Update();				// ¸üĞÂÍ¼ÏñĞÅÏ¢
-	void LoadResouceFile();		// ¼ÓÔØ×ÊÔ´ÎÄ¼ş
-	SDL_Texture* Load_image(std::string FilePath);	// ¼ÓÔØÍ¼Ïñ
-	void Init();				// ³õÊ¼»¯ÓÎÏ·¶ÔÏó
-	void ResetGame();			// ÖØÖÃÓÎÏ·
-	SDL_Texture* Draw_text(std::string message);	// »æÖÆÎÄ×Ö
+	void Start();				// è¿›å…¥æ¶ˆæ¯å¾ªç¯
+	void Refresh();				// refreshåˆ°å±å¹•ä¸Š
+	void Update();				// æ›´æ–°å›¾åƒä¿¡æ¯
+	void LoadResouceFile();		// åŠ è½½èµ„æºæ–‡ä»¶
+	SDL_Texture* Load_image(std::string FilePath);	// åŠ è½½å›¾åƒ
+	void Init();				// åˆå§‹åŒ–æ¸¸æˆå¯¹è±¡
+	void ResetGame();			// é‡ç½®æ¸¸æˆ
+	SDL_Texture* Draw_text(std::string message);	// ç»˜åˆ¶æ–‡å­—
 
 private:
-	SDL_Window* win;			// ´°¿Ú
-	SDL_Renderer* renderer;		// äÖÈ¾Æ÷
-	SDL_Texture* bg1;			// ±³¾°ÎÆÀí
-	SDL_Texture* bg2;
-	SDL_Texture* bg3;
-	SDL_Texture* texture;		// ·½¿éÎÆÀí
-	TTF_Font* Font;				// ×ÖÌå
+	SDL_Window* win;			// çª—å£
+	SDL_Renderer* renderer;		// æ¸²æŸ“å™¨
+	TTF_Font* Font;				// å­—ä½“
 
-	Game* game;					// ÓÎÏ·Àà¶ÔÏó
+	SDL_Texture* bg;			// èƒŒæ™¯çº¹ç†
+	SDL_Texture* textures[TEXTURE_COUNTS];
+
+	Game* game;					// æ¸¸æˆç±»å¯¹è±¡
 };
 
