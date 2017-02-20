@@ -5,39 +5,44 @@
 
 
 Window::Window(void):
-	win(nullptr), renderer(nullptr), Font(nullptr), texture(nullptr),
-	bg1(nullptr), bg2(nullptr), bg3(nullptr), game(nullptr)
+	win(nullptr), renderer(nullptr), Font(nullptr),
+	bg(nullptr)
 {
-	// ³õÊ¼»¯SDL
+	// åˆå§‹åŒ–æ‰€æœ‰çº¹ç†æ•°æ®
+	for (int i=0; i<TEXTURE_COUNTS; ++i)
+	{
+		textures[i] = nullptr;
+	}
+	
+	// åˆå§‹åŒ–SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
 		cout << "SDL_Init Error: " << SDL_GetError() << endl;
 		exit(1);
 	}
-	// ³õÊ¼»¯Í¼Ïñ¿â
+	// åˆå§‹åŒ–å›¾åƒåº“
 	IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
-	// ³õÊ¼»¯×ÖÌå¿â
+	// åˆå§‹åŒ–å­—ä½“åº“
 	TTF_Init();
 	Font = TTF_OpenFont("res/SourceSansPro-Regular.ttf", 20);
 
-	// ´´½¨´°¿Ú
+	// åˆ›å»ºçª—å£
 	win = SDL_CreateWindow(WINDOW_CAPTION, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-	// ´´½¨äÖÈ¾Æ÷(Ê¹ÓÃÓ²¼ş¼ÓËÙäÖÈ¾ºÍÓëµ±Ç°ÏÔÊ¾Æ÷Í¬²½)
+	// åˆ›å»ºæ¸²æŸ“å™¨(ä½¿ç”¨ç¡¬ä»¶åŠ é€Ÿæ¸²æŸ“å’Œä¸å½“å‰æ˜¾ç¤ºå™¨åŒæ­¥)
 	renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-	// ³õÊ¼»¯Ëæ»úÊıÖÖ×Ó
+	// åˆå§‹åŒ–éšæœºæ•°ç§å­
 	srand(unsigned int (time(0)));
 
-	// ¼ÓÔØ×ÊÔ´ÎÄ¼ş
+	// åŠ è½½èµ„æºæ–‡ä»¶
 	LoadResouceFile();
-	// ³õÊ¼»¯ÓÎÏ·¶ÔÏó
+	// åˆå§‹åŒ–æ¸¸æˆå¯¹è±¡
 	Init();
 }
 
 void Window::Init()
 {
-	game = new Game(renderer, texture, Font);
-	game->Init();
+	game = new Game(textures, renderer);
 }
 
 void Window::ResetGame()
@@ -45,7 +50,7 @@ void Window::ResetGame()
 	// do something
 }
 
-// ½øÈëÏûÏ¢Ñ­»·
+// è¿›å…¥æ¶ˆæ¯å¾ªç¯
 void Window::Start()
 {
 	SDL_Event event;
@@ -59,21 +64,21 @@ void Window::Start()
 			case SDL_QUIT:
 				gameRunning = false;
 				break;
-			case SDL_KEYDOWN:	// ¼üÅÌ°´¼üÊÂ¼ş
+			case SDL_KEYDOWN:	// é”®ç›˜æŒ‰é”®äº‹ä»¶
 				{
 					switch (event.key.keysym.sym)
 					{
-					case SDLK_UP:		// Ğı×ªµ±Ç°ÓÎÏ·¿é
-						game->HandleInput(NONE, true);
+					case SDLK_UP:
+						game->HandleInput(UP);
 						break;
 					case SDLK_LEFT:
-						game->HandleInput(LEFT, false);
+						game->HandleInput(LEFT);
 						break;
 					case SDLK_RIGHT:
-						game->HandleInput(RIGHT, false);
+						game->HandleInput(RIGHT);
 						break;
 					case SDLK_DOWN:
-						game->HandleInput(DOWN, false);
+						game->HandleInput(DOWN);
 						break;
 					case SDLK_SPACE:
 						{
@@ -95,55 +100,47 @@ void Window::Start()
 	}
 }
 
-// refreshµ½ÆÁÄ»ÉÏ
+// refreshåˆ°å±å¹•ä¸Š
 void Window::Refresh()
 {
 	SDL_RenderPresent(renderer);
 }
 
-// ¸üĞÂÍ¼ÏñÎ»ÖÃĞÅÏ¢
+// æ›´æ–°å›¾åƒä½ç½®ä¿¡æ¯
 void Window::Update()
 {
+	game->MoveSelf();
 	SDL_RenderClear(renderer);
 
-	// »æÖÆ±³¾°Í¼Æ¬
+	// ç»˜åˆ¶èƒŒæ™¯å›¾ç‰‡
 	int width = 0, height = 0;
-	SDL_QueryTexture(bg2, NULL, NULL, &width, &height);
+	SDL_QueryTexture(bg, NULL, NULL, &width, &height);
 	SDL_Rect rect = {
-		BG2_POSITION_x, BG2_POSITION_y, width, height
+		0, 0, width, height
 	};
-	SDL_RenderCopy(renderer, bg2, NULL, &rect);
+	SDL_RenderCopy(renderer, bg, NULL, &rect);
 
-	SDL_QueryTexture(bg1, NULL, NULL, &width, &height);
-	SDL_Rect rect2 = {
-		BG1_POSITION_x, BG1_POSITION_y, width, height
-	};
-	SDL_RenderCopy(renderer, bg1, NULL, &rect2);
-
-	SDL_QueryTexture(bg3, NULL, NULL, &width, &height);
-	SDL_Rect rect3 = {
-		BG3_POSITION_x, BG3_POSITION_y, width, height
-	};
-	SDL_RenderCopy(renderer, bg3, NULL, &rect3);
-
-	game->GameBlock_selfMove();
+	game->Draw();
 }
 
 void Window::LoadResouceFile()
 {
-	texture = Load_image("res/square.png");
-	bg1 = Load_image("res/bg1.png");
-	bg2 = Load_image("res/bg2.png");
-	bg3 = Load_image("res/bg3.png");
+	// åŠ è½½èƒŒæ™¯çº¹ç†
+	bg = Load_image("res/background.png");
+	textures[NORMAL_BALL] = Load_image("res/normal.png");
+	textures[HARM_BALL] = Load_image("res/harm_ball.png");
+	textures[GOOD_BALL] = Load_image("res/good_ball.png");
+	textures[HEAD] = Load_image("res/head.png");
+	textures[TAIL] = Load_image("res/tail.png");
 }
 
-// ¼ÓÔØÍ¼ÏñÎÆÀí
+// åŠ è½½å›¾åƒçº¹ç†
 SDL_Texture* Window::Load_image(std::string FilePath)
 {
 	SDL_Surface* picture = nullptr;
 
 	picture = IMG_Load(FilePath.c_str());
-	// ÉèÖÃ±³¾°Í¸Ã÷
+	// è®¾ç½®èƒŒæ™¯é€æ˜
 	Uint32 colorkey = SDL_MapRGB(picture->format, 0, 0, 0);
 	SDL_SetColorKey(picture, SDL_TRUE, colorkey);
 
@@ -168,13 +165,15 @@ Window::~Window(void)
 {
 	TTF_CloseFont(Font);
 	TTF_Quit();
-	SDL_DestroyTexture(texture);
-	SDL_DestroyTexture(bg1);
-	SDL_DestroyTexture(bg2);
-	SDL_DestroyTexture(bg3);
+	// é‡Šæ”¾çº¹ç†èµ„æº
+	SDL_DestroyTexture(bg);
+	for (int i=0; i<TEXTURE_COUNTS; ++i)
+	{
+		SDL_DestroyTexture(textures[i]);
+	}
+	// é‡Šæ”¾æ¸²æŸ“å™¨èµ„æº
 	SDL_DestroyRenderer(renderer);
+	// é”€æ¯çª—å£
 	SDL_DestroyWindow(win);
 	SDL_Quit();
-	
-	delete game;
 }
