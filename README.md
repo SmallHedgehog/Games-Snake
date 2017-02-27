@@ -24,7 +24,7 @@ Square类的对象表示蛇每次吃到食物会增加的部分，此外Square�
 
 **Snake类**
 
-Snake类表示游戏中的蛇，它包含了vector<Square*>的集合。
+Snake类表示游戏中的蛇，它包含了vector\<Square*>的集合。
 
 **Game类**
 
